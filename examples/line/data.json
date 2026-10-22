@@ -1,0 +1,9 @@
+{
+  "description": "Synthetic demonstration data. These numbers are invented for learning, not experimental results.",
+  "conditions": ["Setting A", "Setting B", "Setting C"],
+  "series": [
+    {"label": "Method A", "n": 100, "passes": [45, 60, 80], "color": "#4477AA", "marker": "o"},
+    {"label": "Method B", "n": 100, "passes": [55, 70, 90], "color": "#EE6677", "marker": "s"},
+    {"label": "Method C", "n": 100, "passes": [65, 80, 95], "color": "#228833", "marker": "^"}
+  ]
+}

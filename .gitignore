@@ -1,0 +1,14 @@
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+outputs/
+
+# Real research inputs belong outside this repository.
+/papers/
+/private/
+/private-data/
+/data-private/
+*.local.json
+.env
+.env.*

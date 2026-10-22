@@ -1,0 +1,2 @@
+# Tested baseline for the examples; upgrade deliberately and check the output.
+matplotlib==3.9.4
