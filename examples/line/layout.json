@@ -1,0 +1,13 @@
+{
+  "figsize": [3.48, 2.8],
+  "margins": {"left": 0.17, "right": 0.94, "bottom": 0.17, "top": 0.94},
+  "ylabel": "Pass rate",
+  "y_min": 0.2,
+  "legend": {"loc": "lower right", "frameon": false, "fontsize": 7},
+  "annotation_va": "bottom",
+  "annotations": [
+    [{"xytext": [0, 7]}, {"xytext": [0, 7]}, {"xytext": [0, 7]}],
+    [{"xytext": [0, 7]}, {"xytext": [0, 7]}, {"xytext": [0, 7]}],
+    [{"xytext": [0, 7]}, {"xytext": [0, 7]}, {"xytext": [0, 7]}]
+  ]
+}
