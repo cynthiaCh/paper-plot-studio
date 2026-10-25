@@ -120,17 +120,22 @@ cp examples/line/layout.json ../my-paper-data/fig5/layout.json
 | 条件名称 | 数据 JSON 的 `conditions` |
 | 每条曲线的名称 | 数据 JSON 的 `series` → `label` |
 | 样本数和通过数 | 数据 JSON 的 `n`、`passes` |
-| 曲线颜色和标记 | 数据 JSON 的 `color`、`marker` |
+| 论文中固定的模型颜色和 effort 标记 | 布局 JSON 的 `encoding.colors`、`encoding.markers` |
 | 图尺寸 | 布局 JSON 的 `figsize`，单位为英寸 |
 | 纵轴下限 | 布局 JSON 的 `y_min`，或命令参数 `--y-min` |
 | 图例位置 | 布局 JSON 的 `legend` → `loc` |
+| 图例先后顺序 | 布局 JSON 的 `legend_order`，按稳定的曲线 ID 排列 |
 | 某个数字标签的位置 | 布局 JSON 的 `annotations` |
 | 共用字体 | `styles/paper.mplstyle` |
 | 绘图过程本身 | `examples/line/plot.py` |
 
 `n` 是一条曲线在所有条件下共用的分母，`passes` 按 `conditions` 的顺序排列。比如 `n=100`、`passes=[45,60,80]`，绘制的是 45%、60%、80%。分母随条件变化的数据需要先调整数据结构与计算逻辑，不能直接套用这个示例。
 
-布局 JSON 中的 `annotations` 按“曲线 × 条件”排列。增减曲线或条件时，也要同步调整它；不传 `--layout` 则使用代码里的默认布局。
+重复更新论文图时，为每条曲线设置不变的 `id`。布局中的 `encoding` 固定“颜色表示模型、形状表示 effort、线型使用实线”等含义；`legend_order` 明确列出图例顺序，不让程序猜测“最新”指模型版本还是实验时间。完整模拟配置见 [Stable figure rules](../README.md#keep-a-papers-visual-rules-stable)。
+
+`annotations` 可以用曲线 ID 作为键，值按条件排列。这样调整数据行顺序时，标签位置仍属于原曲线；增减曲线时需同步更新配置。原有的“曲线 × 条件”数组形式仍可使用。不传 `--layout` 时使用默认布局。
+
+启用 `encoding` 后，未登记的新模型、数据中擅自添加的颜色/线型、遗漏的图例项都会导致报错。`check_annotations: true` 还会检查数字标签互相重叠和越过画布。出图后查看同名 `.render.json`，可核对实际颜色、形状、线型、图例顺序和输入文件哈希。图例遮挡曲线等情况仍需在 PNG 中查看。
 
 `--y-min` 和 `--output-name` 优先于布局文件里的 `y_min`、`output_name`。最终文件路径是“输出目录 + 文件名 + 后缀”。
 

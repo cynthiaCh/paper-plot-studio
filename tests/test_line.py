@@ -12,6 +12,80 @@ SCRIPT = ROOT / 'examples/line/plot.py'
 
 
 class LineChartTests(unittest.TestCase):
+    def controlled_inputs(self):
+        data = {
+            'conditions': ['A', 'B'],
+            'series': [
+                {'id': 'first', 'label': 'Example low', 'model': 'Example',
+                 'effort': 'low', 'n': 10, 'passes': [2, 4]},
+                {'id': 'latest', 'label': 'Example medium', 'model': 'Example',
+                 'effort': 'medium', 'n': 10, 'passes': [6, 8]},
+            ],
+        }
+        layout = {
+            'encoding': {'color_by': 'model', 'colors': {'Example': '#4477AA'},
+                         'marker_by': 'effort', 'markers': {'low': 'o', 'medium': 's'},
+                         'linestyle': '-'},
+            'legend_order': ['latest', 'first'],
+            'annotations': {key: [{'xytext': [0, 7]}, {'xytext': [0, 7]}]
+                            for key in ['first', 'latest']},
+            'check_annotations': True,
+        }
+        return data, layout
+
+    def test_semantic_styles_and_id_layout_survive_input_reordering(self):
+        data, layout = self.controlled_inputs()
+        with tempfile.TemporaryDirectory() as directory:
+            work = Path(directory)
+            source, settings = work / 'input.json', work / 'layout.json'
+            settings.write_text(json.dumps(layout))
+            images = []
+            for index in range(2):
+                source.write_text(json.dumps(data))
+                output = work / str(index)
+                result = subprocess.run(
+                    [sys.executable, str(SCRIPT), '--data', str(source),
+                     '--layout', str(settings), '--output-dir', str(output)],
+                    capture_output=True, text=True,
+                )
+                self.assertEqual(result.returncode, 0, result.stderr)
+                rendered = json.loads((output / 'line-comparison.render.json').read_text())
+                self.assertEqual(rendered['legend_order'], ['latest', 'first'])
+                styles = {row['id']: row for row in rendered['series']}
+                self.assertEqual(styles['first']['color'], styles['latest']['color'])
+                self.assertEqual(styles['first']['marker'], 'o')
+                self.assertEqual(styles['latest']['marker'], 's')
+                self.assertTrue(all(row['linestyle'] == '-' for row in styles.values()))
+                images.append((output / 'line-comparison.png').read_bytes())
+                data['series'].reverse()
+            self.assertEqual(images[0], images[1])
+
+    def test_unapproved_styles_or_incomplete_order_are_rejected_before_writing(self):
+        for problem in ['unknown_model', 'override', 'missing_order', 'duplicate_id', 'overlap']:
+            with self.subTest(problem=problem), tempfile.TemporaryDirectory() as directory:
+                data, layout = self.controlled_inputs()
+                if problem == 'unknown_model':
+                    data['series'][1]['model'] = 'Unconfigured'
+                elif problem == 'override':
+                    data['series'][1]['linestyle'] = '--'
+                elif problem == 'missing_order':
+                    layout['legend_order'] = ['latest']
+                elif problem == 'duplicate_id':
+                    data['series'][1]['id'] = 'first'
+                else:
+                    data['series'][1]['passes'] = [2, 4]
+                work = Path(directory)
+                source, settings = work / 'input.json', work / 'layout.json'
+                source.write_text(json.dumps(data))
+                settings.write_text(json.dumps(layout))
+                result = subprocess.run(
+                    [sys.executable, str(SCRIPT), '--data', str(source),
+                     '--layout', str(settings), '--output-dir', str(work / 'figures')],
+                    capture_output=True, text=True,
+                )
+                self.assertEqual(result.returncode, 2, result.stderr)
+                self.assertFalse((work / 'figures').exists())
+
     def test_external_layout_controls_output_without_external_python(self):
         with tempfile.TemporaryDirectory() as directory:
             work = Path(directory)

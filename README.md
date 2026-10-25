@@ -62,6 +62,52 @@ Layout keys include `figsize` (inches), `margins` (figure fractions), `ylabel`, 
 
 Optional `annotations` is a list with one row per series and one object per condition. Each object specifies `xytext: [x, y]` and optionally `textcoords: "offset points"` (default) or `"data"`. For example, `{"xytext": [0, 7]}` places a label seven points above its data point; `{"xytext": [2, 0.9], "textcoords": "data"}` puts it at condition index 2 and rate 0.9. The row and column order follows the data JSON. `annotation_va` controls vertical alignment, and `annotation_box` accepts Matplotlib text bounding-box settings. This is explicit label positioning, not automatic overlap detection.
 
+## Keep a paper's visual rules stable
+
+Use stable series IDs and explicit semantic mappings when updating the same figure over time. Keep these settings in the paper's external layout file; reuse this renderer. Adding results should not require a new Python plotting script.
+
+For example, data can identify the model and effort separately:
+
+```json
+{
+  "conditions": ["Setting A", "Setting B"],
+  "series": [
+    {"id": "example-low", "label": "Example / low", "model": "Example", "effort": "low", "n": 10, "passes": [2, 4]},
+    {"id": "example-medium", "label": "Example / medium", "model": "Example", "effort": "medium", "n": 10, "passes": [6, 8]}
+  ]
+}
+```
+
+The corresponding layout fixes the meaning of color and marker, uses solid lines, and places the newly added configuration first in the legend:
+
+```json
+{
+  "encoding": {
+    "color_by": "model",
+    "colors": {"Example": "#4477AA"},
+    "marker_by": "effort",
+    "markers": {"low": "o", "medium": "s"},
+    "linestyle": "-"
+  },
+  "legend_order": ["example-medium", "example-low"],
+  "annotations": {
+    "example-low": [{"xytext": [0, 7]}, {"xytext": [0, 7]}],
+    "example-medium": [{"xytext": [0, 7]}, {"xytext": [0, 7]}]
+  },
+  "check_annotations": true
+}
+```
+
+- Color is looked up by model identity, so reordering or adding rows cannot change existing model colors. Markers can distinguish effort settings within one model.
+- `legend_order` lists every series ID exactly once. Its first item is the top legend entry for a single-column legend. Set the intended chronology explicitly; the renderer does not infer recency from model names, array order, or filesystem dates.
+- ID-keyed annotations stay attached to their series when data rows move. Existing positional annotation lists remain supported.
+- In encoding mode, per-series `color`, `marker`, or `linestyle` overrides are rejected. Missing model/effort mappings, duplicate IDs, incomplete legend orders, and incomplete annotation mappings stop the render before writing outputs.
+- `check_annotations` rejects overlapping count labels and labels outside the figure. It does not check every legend/line interaction or guarantee a good layout; inspect the PNG at paper size. Annotation objects may include Matplotlib `arrowprops` for leader lines.
+
+Each run also writes `OUTPUT_NAME.render.json` with the input/layout SHA-256 hashes, resolved colors, markers, line styles, and legend order. Keep this alongside the PDF to inspect which rules were actually used. `y_max` optionally sets the upper axis limit; neither bound may hide a point.
+
+For recurring work: update counts in the data file, deliberately register any new model and series ID in the layout, run the same command, inspect the preview, then upload the PDF. Keep paper-specific data, palettes, ordering decisions, and label offsets outside this repository.
+
 To change the axis lower bound:
 
 ```sh
