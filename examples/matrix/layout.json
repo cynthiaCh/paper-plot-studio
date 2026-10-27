@@ -1,0 +1,9 @@
+{
+  "figsize": [4.5, 2.8],
+  "margins": {"left": 0.20, "right": 0.96, "bottom": 0.12, "top": 0.95},
+  "vmin": -40,
+  "vmax": 40,
+  "center": 0,
+  "format": "+.0f",
+  "colorbar_label": "Paired gain (percentage points)"
+}

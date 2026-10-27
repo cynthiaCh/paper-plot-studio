@@ -1,0 +1,8 @@
+{
+  "description": "Synthetic example only; invented counts, not experimental results.",
+  "series": [
+    {"id": "a", "label": "Method A", "n": 100, "fp": 35, "pf": 5},
+    {"id": "b", "label": "Method B", "n": 80, "fp": 22, "pf": 8},
+    {"id": "c", "label": "Method C", "n": 60, "fp": 10, "pf": 12}
+  ]
+}

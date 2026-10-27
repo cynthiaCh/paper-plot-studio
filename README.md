@@ -2,7 +2,7 @@
 
 A small, readable collection of Python examples for paper figures. Keep research data outside the repository, adapt a plotting script, and export a vector PDF for LaTeX/Overleaf plus a PNG preview.
 
-**Current scope:** one pass-rate line-chart example using Matplotlib. This is a starter collection, not a general chart editor or statistics package. The included data are explicitly synthetic and do not report experimental results.
+**Current scope:** Matplotlib examples for pass-rate lines, paired binary transitions, and annotated matrices. This is a starter collection, not a general chart editor or statistics package. The included data are explicitly synthetic and do not report experimental results.
 
 Learning with this project? Start with the [中文入门指南：读懂命令、修改图表并导入 Overleaf](docs/getting-started.zh-CN.md). It explains each command and suggests small exercises using the synthetic example.
 
@@ -150,10 +150,27 @@ The 3.48-inch figure width and 8-point base font are example settings, not unive
 
 On later updates, upload a same-named PDF and recompile. Captions and manuscript text are maintained in LaTeX; they are not updated automatically by the plotting script.
 
+## Paired transitions and annotated matrices
+
+Two additional examples reuse the same runner, external inputs, and shared font style:
+
+```sh
+./draw.sh paired
+./draw.sh matrix
+```
+
+`paired` takes `series` rows with stable `id`, `label`, positive integer `n`, and integer `fp`/`pf` transition counts. Here `fp` means fail to pass and `pf` means pass to fail. They must refer to the same matched cohort, be disjoint, and sum to at most `n`. Bars show `100 fp/n` and `100 pf/n` on opposite sides; the displayed gain is `100(fp-pf)/n`. Marginal pass counts with different denominators cannot substitute for transition counts. Default colors identify transition directions consistently. Optional layout keys include `figsize`, `margins`, `xlim`, `colors`, `xlabel`, and `output_name`; limits that hide data are rejected.
+
+`matrix` takes unique `rows` and `columns` labels and a rectangular `values` array. Explicit `null` is displayed as gray `NA`, never imputed as zero. Its layout requires `vmin` and `vmax`; optional `center` creates a diverging scale. Shared scales allow comparison across cells. Other keys include `figsize`, `margins`, `format` (Python numeric format), `aspect`, `rotation`, `annotation_size`, `colorbar_label`, `colorbar_ticks`, `colorbar_pad`, and `output_name`. Scales that clip values are rejected. Counts and percentages should have distinct labels and denominators; the renderer does not derive these semantics.
+
+Both examples accept `--data`, `--layout`, and `--output-dir`, export PDF/PNG plus input-hash provenance, and run with invented public data. Keep genuine values, source mappings, paper labels, and paper layout files outside this repository. Neither renderer infers uncertainty, independence, causality, or statistical significance. Inspect dense labels at final publication width.
+
 ## Project layout
 
 ```text
-examples/line/    Synthetic input and a readable plotting script
+examples/line/    Pass-rate line comparison
+examples/paired/  Matched binary transition bars
+examples/matrix/  Explicit-scale annotated matrix
 docs/            Step-by-step learning guides
 styles/          Shared Matplotlib style
 tests/           CLI and data-validation checks

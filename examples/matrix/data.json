@@ -1,0 +1,6 @@
+{
+  "description": "Synthetic example only. Null means unavailable, not zero.",
+  "rows": ["Method A", "Method B", "Method C"],
+  "columns": ["Source 1", "Source 2", "Source 3"],
+  "values": [[10, 30, -5], [5, null, 25], [-10, 15, 40]]
+}
